@@ -12,7 +12,6 @@
 	Start Time: <input type="time" id="start-time" value="00:00">
 	End Time: <input type="time" id="end-time" value="00:00">
 	Location: <input type="text" id="location" maxlength="150"><!-- TODO check max length-->
-	
 	<button onclick="createIcsFile()">Generate Event File</button>
   </div>
   
@@ -80,8 +79,7 @@
 	
 	window.onload = function() {
 	  const dt = new Date();
-	  const date = dt.getFullYear() + "-06-29";
-	  console.log(date);
+	  const date = dt.getFullYear() + "-" + padZeros(dt.getMonth() + 1, 2) + "-" + padZeros(dt.getDate(), 2);
 	  document.getElementById("start-date").value = date;
 	}
 	
