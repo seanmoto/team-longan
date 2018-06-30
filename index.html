@@ -7,9 +7,13 @@
 </head>
 <body>
   <div>
-    <input type="date" id="start-date">
-	<input type="time" id="start-time">
-	<input type="time" id="end-time">
+    Event Name: <input type="text" id="event-name" maxlength="150"><!-- TODO check max length-->
+    Start Date: <input type="date" id="start-date">
+	Start Time: <input type="time" id="start-time" value="00:00">
+	End Time: <input type="time" id="end-time" value="00:00">
+	Location: <input type="text" id="location" maxlength="150"><!-- TODO check max length-->
+	
+	<button onclick="createIcsFile()">Generate Event File</button>
   </div>
   
   <script>
@@ -21,7 +25,6 @@
 	  //needs EVENT_NAME, START_TIME, END_TIME, START_DATE, END_DATE, TIME_ZONE, LOCATION
 	  let content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\n";
 	  //TODO add tzid to content
-	  //TODO add vevent to content
 	  content = content.concat(createVevent());
 	  content = content.concat("END:VCALENDAR");
 	  let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
@@ -36,16 +39,19 @@
 	  let rtn = "BEGIN:VEVENT\r\n";
 	  //TODO add uid
 	  let dt = new Date();
-	  rtn = rtn.concat("DTSTAMP:" + dt.getFullYear() + dt.getMonth() + dt.getDate() + "T" +
+	  rtn = rtn.concat("DTSTAMP:" + dt.getFullYear() + padZeros(dt.getMonth() + 1, 2) + padZeros(dt.getDate(), 2) + "T" +
 	    dt.getHours() + dt.getMinutes() + "00" + "\r\n");
+		
+      //TODO validate start time is before end time
 	  //TODO dtstart
 	  //TODO dtend
-	  //TODO location
-	  //TODO summary (title)
+
+	  rtn = rtn.concat("LOCATION:" + document.getElementById("location").value + "\r\n");
+	  rtn = rtn.concat("SUMMARY:" + document.getElementById("event-name").value + "\r\n");
 	  
 	  //temp for testing
 	  rtn = rtn.concat("UID:123412345fscvw@example.com\r\nDTSTART:20180713T100000\r\nDTEND:20180713T130000\r\n");
-	  rtn = rtn.concat("LOCATION:Hamilton Library\r\nSUMMARY:Study for exam\r\n");
+	  
 	  
 	  rtn = rtn.concat("END:VEVENT\r\n");
       return rtn;
@@ -70,6 +76,21 @@
 	//TODO has to create a unique user id each time for each event (format: string@string)
     function createUid() {
 	
+	}
+	
+	window.onload = function() {
+	  const dt = new Date();
+	  const date = dt.getFullYear() + "-06-29";
+	  console.log(date);
+	  document.getElementById("start-date").value = date;
+	}
+	
+	function padZeros(num, width) {
+	  rtn = num.toString();
+	  while(rtn.length < width) {
+	    rtn = "0".concat(rtn);
+	  }
+	  return rtn;
 	}
 	
   </script>
