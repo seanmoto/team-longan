@@ -14,9 +14,9 @@
 	Location: <input type="text" id="location" maxlength="150"><!-- TODO check max length-->
 	<button onclick="createIcsFile()">Generate Event File</button>
   </div>
-  
+
   <script>
-    /** 
+    /**
 	 * createIcsFile, Creates a .ics file based on the user's input
 	 * @param TODO
 	 */
@@ -29,7 +29,7 @@
 	  let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
 	  saveAs(blob, "output.ics");//TODO dynamic filename
 	}
-	
+
 	/**
 	 * createVevent, generates a .ics VEVENT
 	 */
@@ -40,28 +40,28 @@
 	  let dt = new Date();
 	  rtn = rtn.concat("DTSTAMP:" + dt.getFullYear() + padZeros(dt.getMonth() + 1, 2) + padZeros(dt.getDate(), 2) + "T" +
 	    dt.getHours() + dt.getMinutes() + "00" + "\r\n");
-		
-      //TODO validate start time is before end time
+
+    //TODO validate start time is before end time
 	  //TODO dtstart
 	  //TODO dtend
 
 	  rtn = rtn.concat("LOCATION:" + document.getElementById("location").value + "\r\n");
 	  rtn = rtn.concat("SUMMARY:" + document.getElementById("event-name").value + "\r\n");
-	  
+
 	  //temp for testing
 	  rtn = rtn.concat("UID:123412345fscvw@example.com\r\nDTSTART:20180713T100000\r\nDTEND:20180713T130000\r\n");
-	  
-	  
+
+
 	  rtn = rtn.concat("END:VEVENT\r\n");
       return rtn;
 	}
-	
+
 	/** TODO
 	 * createTzid, Gets the user's timezone and converts it into a .ics TZID
 	 */
 	function createTzid() {
 	}
-	
+
 	/**
 	 * createDateTimeString, Converts html date and time inputs into a .ics date-time string
 	 * @param date, date of the event, expected format: year-month-day e.g. 2000-01-31
@@ -71,18 +71,18 @@
 	function createDateTimeString(date, time) {
 	  return date.replace(/-/g, "") + "T" + time.replace(":", "") + "00";
 	}
-	
+
 	//TODO has to create a unique user id each time for each event (format: string@string)
     function createUid() {
-	
+
 	}
-	
+
 	window.onload = function() {
 	  const dt = new Date();
 	  const date = dt.getFullYear() + "-" + padZeros(dt.getMonth() + 1, 2) + "-" + padZeros(dt.getDate(), 2);
 	  document.getElementById("start-date").value = date;
 	}
-	
+
 	function padZeros(num, width) {
 	  rtn = num.toString();
 	  while(rtn.length < width) {
@@ -90,7 +90,7 @@
 	  }
 	  return rtn;
 	}
-	
+
   </script>
 </body>
 </html>
