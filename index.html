@@ -22,7 +22,7 @@
 	 */
 	function createIcsFile() { //TODO This function will be hooked into an html form
 	  //needs EVENT_NAME, START_TIME, END_TIME, START_DATE, END_DATE, TIME_ZONE, LOCATION
-	  let content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\n";
+	  let content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\nX-WR-TIMEZONE:Pacific/Honolulu\r\n";
 	  //TODO add tzid to content
 	  content = content.concat(createVevent());
 	  content = content.concat("END:VCALENDAR");
