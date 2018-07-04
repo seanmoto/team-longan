@@ -42,14 +42,16 @@
 	    dt.getHours() + dt.getMinutes() + "00" + "\r\n");
 		
       //TODO validate start time is before end time
-	  //TODO dtstart
-	  //TODO dtend
+	  rtn = rtn.concat("DTSTART:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("start-time").value) + "\r\n");
+	  //TODO end date input
+	  rtn = rtn.concat("DTEND:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("end-time").value) + "\r\n");
+
 
 	  rtn = rtn.concat("LOCATION:" + document.getElementById("location").value + "\r\n");
 	  rtn = rtn.concat("SUMMARY:" + document.getElementById("event-name").value + "\r\n");
 	  
 	  //temp for testing
-	  rtn = rtn.concat("UID:123412345fscvw@example.com\r\nDTSTART:20180713T100000\r\nDTEND:20180713T130000\r\n");
+	  rtn = rtn.concat("UID:123412345fscvw@example.com\r\n");
 	  
 	  
 	  rtn = rtn.concat("END:VEVENT\r\n");
