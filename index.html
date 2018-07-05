@@ -3,95 +3,204 @@
 <head>
   <title>Team Longan</title><!-- TODO create name -->
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script xmlns="http://www.w3.org/1999/xhtml" async="" src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"></script>
+  <style>
+    .required-field {
+      display: inline;
+      color:red;
+    }
+  </style>
 </head>
 <body>
-  <div>
-    Event Name: <input type="text" id="event-name" maxlength="150"><!-- TODO check max length-->
-    Start Date: <input type="date" id="start-date">
-	Start Time: <input type="time" id="start-time" value="00:00">
-	End Time: <input type="time" id="end-time" value="00:00">
-	Location: <input type="text" id="location" maxlength="150"><!-- TODO check max length-->
-	<button onclick="createIcsFile()">Generate Event File</button>
+  <br>
+  <div class="container">
+    <ul class="nav nav-tabs">
+      <li class="active" data-toggle="tab"><a href="#" onclick="showSimple()">Simple</a></li>
+      <li data-toggle="tab"><a href="#" onclick="showAdvanced()">Advanced</a></li>
+    </ul>
+    <br>
+    <div>
+      <div class="form-group col-xs-12">
+        <label>Event Name</label><p class="required-field"> *</p>
+        <input class="form-control" type="text" id="event-name" maxlength="150">
+      </div>
+      <div class="form-group col-xs-12" id="start-date-group">
+        <label id="start-date-label">Date of Event</label><p class="required-field"> *</p>
+        <input class="form-control" type="date" id="start-date">
+      </div>
+      <div class="form-group col-xs-6" id="end-date-group">
+        <label>End Date</label><p class="required-field"> *</p>
+        <input class="form-control" type="date" id="end-date">
+      </div>
+      <div class="form-group col-xs-6">
+        <label>Start Time</label><p class="required-field"> *</p>
+        <input class="form-control" type="time" id="start-time" value="00:00">
+      </div>
+      <div class="form-group col-xs-6">
+        <label>End Time</label><p class="required-field"> *</p>
+        <input class="form-control" type="time" id="end-time" value="00:00">
+      </div>
+      <div class="form-group col-xs-12" id="time-zone-group">
+        <label>Time Zone</label>
+        <input class="form-control" type="text" id="time-zone" maxlength="150">
+      </div>
+      <div class="form-group col-xs-12">
+        <label>Location</label>
+        <input class="form-control" type="text" id="location" maxlength="150">
+      </div>
+      <div class="form-group col-xs-6 hidden" id="latitude-group">
+        <label>Latitude</label>
+        <input class="form-control" type="number" id="latitude"><!--TODO MUST BE FLOAT-->
+      </div>
+      <div class="form-group col-xs-6 hidden" id="longitude-group">
+        <label>Longitude</label>
+        <input class="form-control" type="number" id="longitude"><!--TODO MUST BE FLOAT-->
+      </div>
+      <div class="form-group col-xs-12" id="privacy-group">
+        <label>Privacy Level</label>
+        <select class="form-control" id="privacy">
+          <option>Public</option>
+          <option>Private</option>
+          <option>Confidential</option>
+        </select>
+      </div>
+      <div class="form-group col-xs-12 hidden" id="priority-group">
+        <label>Priority</label><!--TODO needs to map to values 0-9 as per file documentation-->
+        <select class="form-control" id="priority">
+          <option>High</option>
+          <option selected="selected">Medium</option>
+          <option>Low</option>
+        </select>
+      </div>
+      <div class="form-group col-xs-12">
+        <button type="button" class="btn btn-primary" onclick="createIcsFile()" id="submit-button">Generate Event File</button>
+      </div>
+      <div class=col-xs-12>
+        <p class="required-field">* required</p><!-- TODO rework appearance -->
+      </div>
+    </div>
   </div>
   
+  <!-- TODO all input validation -->
+  
   <script>
-    /** 
-	 * createIcsFile, Creates a .ics file based on the user's input
-	 * @param TODO
-	 */
-	function createIcsFile() { //TODO This function will be hooked into an html form
-	  //needs EVENT_NAME, START_TIME, END_TIME, START_DATE, END_DATE, TIME_ZONE, LOCATION
-	  let content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\n";
-	  //TODO add tzid to content
-	  content = content.concat(createVevent());
-	  content = content.concat("END:VCALENDAR");
-	  let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-	  saveAs(blob, "output.ics");//TODO dynamic filename
-	}
-	
-	/**
-	 * createVevent, generates a .ics VEVENT
-	 */
-	function createVevent() {
-	  let vuid, vclass, dtstamp, dtstart, dtend, location, summary;
-	  let rtn = "BEGIN:VEVENT\r\n";
-	  //TODO add uid
-	  let dt = new Date();
-	  rtn = rtn.concat("DTSTAMP:" + dt.getFullYear() + padZeros(dt.getMonth() + 1, 2) + padZeros(dt.getDate(), 2) + "T" +
-	    dt.getHours() + dt.getMinutes() + "00" + "\r\n");
-		
+  
+  /** 
+   * showSimple, Displays all "simple" inputs
+   */
+  function showSimple() {
+    document.getElementById("start-date-group").classList.remove("col-xs-6");
+    document.getElementById("start-date-group").classList.add("col-xs-12");
+    document.getElementById("start-date-label").innerHTML = "Date of Event";
+    document.getElementById("end-date-group").classList.add("hidden");
+    document.getElementById("time-zone-group").classList.add("hidden");
+    document.getElementById("latitude-group").classList.add("hidden");
+    document.getElementById("longitude-group").classList.add("hidden");
+    document.getElementById("privacy-group").classList.add("hidden");
+    document.getElementById("priority-group").classList.add("hidden");
+    document.getElementById("submit-button").setAttribute("onclick", "createIcsFile(0)");
+  }
+  
+  /** 
+   * showAdvanced, Displays all "advanced" inputs
+   */
+  function showAdvanced() {
+    document.getElementById("start-date-group").classList.remove("col-xs-12");
+    document.getElementById("start-date-group").classList.add("col-xs-6");
+    document.getElementById("start-date-label").innerHTML = "Start Date";
+    document.getElementById("end-date-group").classList.remove("hidden");
+    document.getElementById("time-zone-group").classList.remove("hidden");
+    document.getElementById("latitude-group").classList.remove("hidden");
+    document.getElementById("longitude-group").classList.remove("hidden");
+    document.getElementById("privacy-group").classList.remove("hidden");
+    document.getElementById("priority-group").classList.remove("hidden");
+    document.getElementById("submit-button").onclick = "createIcsFile(1)";
+    document.getElementById("submit-button").setAttribute("onclick", "createIcsFile(1)");
+  }
+
+  /** 
+   * createIcsFile, Creates a .ics file based on the user's input
+   * @param mode, 0: simple, 1: advanced
+   */
+  createIcsFile = function(mode) {
+  
+    //needs EVENT_NAME, START_TIME, END_TIME, START_DATE, END_DATE, TIME_ZONE, LOCATION
+    let content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\n";
+    
+    //TODO add tzid to content
+    content = content.concat(createVevent());
+    content = content.concat("END:VCALENDAR");
+    let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "output.ics");//TODO dynamic filename
+  }
+  
+  /**
+   * createVevent, generates a .ics VEVENT
+   */
+  function createVevent() {
+    let vuid, vclass, dtstamp, dtstart, dtend, location, summary;
+    let rtn = "BEGIN:VEVENT\r\n";
+    //TODO add uid
+    let dt = new Date();
+    rtn = rtn.concat("DTSTAMP:" + dt.getFullYear() + padZeros(dt.getMonth() + 1, 2) + padZeros(dt.getDate(), 2) + "T" +
+      dt.getHours() + dt.getMinutes() + "00" + "\r\n");
+    
       //TODO validate start time is before end time
-	  rtn = rtn.concat("DTSTART:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("start-time").value) + "\r\n");
-	  //TODO end date input
-	  rtn = rtn.concat("DTEND:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("end-time").value) + "\r\n");
+    rtn = rtn.concat("DTSTART:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("start-time").value) + "\r\n");
+    //TODO end date input
+    rtn = rtn.concat("DTEND:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("end-time").value) + "\r\n");
 
 
-	  rtn = rtn.concat("LOCATION:" + document.getElementById("location").value + "\r\n");
-	  rtn = rtn.concat("SUMMARY:" + document.getElementById("event-name").value + "\r\n");
-	  
-	  //temp for testing
-	  rtn = rtn.concat("UID:123412345fscvw@example.com\r\n");
-	  
-	  
-	  rtn = rtn.concat("END:VEVENT\r\n");
+    rtn = rtn.concat("LOCATION:" + document.getElementById("location").value + "\r\n");
+    rtn = rtn.concat("SUMMARY:" + document.getElementById("event-name").value + "\r\n");
+    
+    //temp for testing
+    rtn = rtn.concat("UID:123412345fscvw@example.com\r\n");
+    
+    
+    rtn = rtn.concat("END:VEVENT\r\n");
       return rtn;
-	}
-	
-	/** TODO
-	 * createTzid, Gets the user's timezone and converts it into a .ics TZID
-	 */
-	function createTzid() {
-	}
-	
-	/**
-	 * createDateTimeString, Converts html date and time inputs into a .ics date-time string
-	 * @param date, date of the event, expected format: year-month-day e.g. 2000-01-31
-	 * @param time, time of the event, expected format: hour:minute e.g. 13:59
-	 * @return date-time string usable in .ics files
-	 */
-	function createDateTimeString(date, time) {
-	  return date.replace(/-/g, "") + "T" + time.replace(":", "") + "00";
-	}
-	
-	//TODO has to create a unique user id each time for each event (format: string@string)
+  }
+  
+  /** TODO
+   * createTzid, Gets the user's timezone and converts it into a .ics TZID
+   */
+  function createTzid() {
+  }
+  
+  /**
+   * createDateTimeString, Converts html date and time inputs into a .ics date-time string
+   * @param date, date of the event, expected format: year-month-day e.g. 2000-01-31
+   * @param time, time of the event, expected format: hour:minute e.g. 13:59
+   * @return date-time string usable in .ics files
+   */
+  function createDateTimeString(date, time) {
+    return date.replace(/-/g, "") + "T" + time.replace(":", "") + "00";
+  }
+  
+  //TODO has to create a unique user id each time for each event (format: string@string)
     function createUid() {
-	
-	}
-	
-	window.onload = function() {
-	  const dt = new Date();
-	  const date = dt.getFullYear() + "-" + padZeros(dt.getMonth() + 1, 2) + "-" + padZeros(dt.getDate(), 2);
-	  document.getElementById("start-date").value = date;
-	}
-	
-	function padZeros(num, width) {
-	  rtn = num.toString();
-	  while(rtn.length < width) {
-	    rtn = "0".concat(rtn);
-	  }
-	  return rtn;
-	}
+  
+  }
+  
+  window.onload = function() {
+    showSimple();
+    const dt = new Date();
+    const date = dt.getFullYear() + "-" + padZeros(dt.getMonth() + 1, 2) + "-" + padZeros(dt.getDate(), 2);
+    document.getElementById("start-date").value = date;
+    document.getElementById("end-date").value = date;
+  }
+  
+  function padZeros(num, width) {
+    rtn = num.toString();
+    while(rtn.length < width) {
+      rtn = "0".concat(rtn);
+    }
+    return rtn;
+  }
 	
   </script>
 </body>
