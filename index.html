@@ -128,7 +128,7 @@
   createIcsFile = function(mode) {
 
     //needs EVENT_NAME, START_TIME, END_TIME, START_DATE, END_DATE, TIME_ZONE, LOCATION
-    let content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\n";
+    let content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\nX-WR-TIMEZONE:" + createTzid() + "\r\n";
 
     //TODO add tzid to content
     content = content.concat(createVevent());
@@ -169,6 +169,7 @@
    * createTzid, Gets the user's timezone and converts it into a .ics TZID
    */
   function createTzid() {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
   }
 
   /**
@@ -183,7 +184,7 @@
 
   //TODO has to create a unique user id each time for each event (format: string@string)
     function createUid() {
-  
+
   }
 
   window.onload = function() {
