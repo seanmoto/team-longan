@@ -83,12 +83,13 @@
       </div>
     </div>
   </div>
-
+  
   <!-- TODO all input validation -->
-
+  
   <script>
+  
+  /** 
 
-  /**
    * showSimple, Displays all "simple" inputs
    */
   function showSimple() {
@@ -121,12 +122,12 @@
     document.getElementById("submit-button").setAttribute("onclick", "createIcsFile(1)");
   }
 
-  /**
+
+  /** 
    * createIcsFile, Creates a .ics file based on the user's input
    * @param mode, 0: simple, 1: advanced
    */
   createIcsFile = function(mode) {
-
     //needs EVENT_NAME, START_TIME, END_TIME, START_DATE, END_DATE, TIME_ZONE, LOCATION
     let content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\nX-WR-TIMEZONE:" + createTzid() + "\r\n";
 
@@ -164,6 +165,7 @@
     rtn = rtn.concat("END:VEVENT\r\n");
       return rtn;
   }
+
 
   /** TODO
    * createTzid, Gets the user's timezone and converts it into a .ics TZID
