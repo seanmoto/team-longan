@@ -14,6 +14,9 @@
     }
   </style>
 </head>
+
+<!-- TODO Remove "clear" from time and date inputs or capture clearing for validation -->
+
 <body>
   <br>
   <div class="container">
@@ -23,64 +26,124 @@
     </ul>
     <br>
     <div>
-      <div class="form-group col-xs-12">
-        <label>Event Name</label><p class="required-field"> *</p>
-        <input class="form-control" type="text" id="event-name" maxlength="150">
+    
+      <div class="row">
+        <div class="form-group col-xs-12" id="event-name-group">
+          <label class="control-label">Event Name</label><p class="required-field"> *</p>
+          <input class="form-control" type="text" id="event-name" maxlength="150" onfocusout="validateEventName()">
+          <small class="form-text text-danger hidden" id="event-name-warning">Your event must have a name</small>
+        </div>
       </div>
-      <div class="form-group col-xs-12" id="start-date-group">
-        <label id="start-date-label">Date of Event</label><p class="required-field"> *</p>
-        <input class="form-control" type="date" id="start-date">
+      
+      <div class="row">
+        <div class="form-group col-xs-12" id="start-date-group">
+          <label class="control-label" id="start-date-label">Date of Event</label><p class="required-field"> *</p>
+          <input class="form-control" type="date" id="start-date" onfocusout="validateStartDate(0)">
+          <small class="form-text text-danger hidden" id="start-date-warning">Your event must have a date</small>
+        </div>
+        <div class="form-group col-xs-6" id="end-date-group">
+          <label class="control-label">End Date</label><p class="required-field"> *</p>
+          <input class="form-control" type="date" id="end-date" onfocusout="validateEndDate(1)">
+          <small class="form-text text-danger hidden" id="end-date-warning">Your event must have an end date</small>
+        </div>
       </div>
-      <div class="form-group col-xs-6" id="end-date-group">
-        <label>End Date</label><p class="required-field"> *</p>
-        <input class="form-control" type="date" id="end-date">
+      <div class="row">
+        <div class="form-group col-xs-12 hidden" id="start-end-date-warning-group">
+          <small class="form-text text-center text-danger" id="start-end-time-warning">Your event's ending date cannot be before its starting date. Please double check your start and end dates to avoid errors</small>
+        </div>
       </div>
-      <div class="form-group col-xs-6">
-        <label>Start Time</label><p class="required-field"> *</p>
-        <input class="form-control" type="time" id="start-time" value="00:00">
+      
+      <div class="row">
+        <div class="form-group col-xs-6" id="start-time-group">
+          <label class="control-label">Start Time</label><p class="required-field"> *</p>
+          <input class="form-control" type="time" id="start-time" value="00:00" onfocusout="validateStartTime(0)">
+          <small class="form-text text-danger hidden" id="start-time-warning">Your event must have a starting time</small>
+        </div>
+        <div class="form-group col-xs-6"  id="end-time-group">
+          <label class="control-label">End Time</label><p class="required-field"> *</p>
+          <input class="form-control" type="time" id="end-time" value="00:00" onfocusout="validateEndTime(0)">
+          <small class="form-text text-danger hidden" id="end-time-warning">Your event must have an ending time</small>
+        </div>
       </div>
-      <div class="form-group col-xs-6">
-        <label>End Time</label><p class="required-field"> *</p>
-        <input class="form-control" type="time" id="end-time" value="00:00">
+      <div class="row">
+        <div class="form-group col-xs-12 hidden" id="start-end-time-warning-group">
+          <small class="form-text text-center text-danger" id="start-end-time-warning">Start Time cannot be after End Time for single day events. Please double check your start and end times to avoid errors</small>
+        </div>
       </div>
-      <div class="form-group col-xs-12" id="time-zone-group">
-        <label>Time Zone</label>
-        <input class="form-control" type="text" id="time-zone" maxlength="150">
+      
+      <div class="row">
+        <div class="form-group col-xs-12" id="time-zone-group">
+          <label class="control-label">Time Zone</label>
+          <input class="form-control" type="text" id="time-zone" maxlength="150">
+        </div>
       </div>
-      <div class="form-group col-xs-12">
-        <label>Location</label>
-        <input class="form-control" type="text" id="location" maxlength="150">
+      
+      <div class="row">
+        <div class="form-group col-xs-12">
+          <label class="control-label">Location</label>
+          <input class="form-control" type="text" id="location" maxlength="150">
+        </div>
       </div>
-      <div class="form-group col-xs-6 hidden" id="latitude-group">
-        <label>Latitude</label>
-        <input class="form-control" type="number" id="latitude" max="90" min="-90" step="0.000001"><!--TODO MUST BE FLOAT-->
+      
+      <div class="row">
+        <div class="form-group col-xs-12 hidden" id="latitude-longitude-checkbox-group">
+          <label>Latitude/Longitude</label>
+          <input type="checkbox" value="" id="latitude-longitude-checkbox" onclick="showLatitudeLongitude()">
+        </div>
       </div>
-      <div class="form-group col-xs-6 hidden" id="longitude-group">
-        <label>Longitude</label>
-        <input class="form-control" type="number" id="longitude" max="180" min="-180" step="0.000001"><!--TODO MUST BE FLOAT-->
+      
+      <div class="row">
+        <div class="form-group col-xs-6 hidden" id="latitude-group">
+          <label class="control-label">Latitude</label>
+          <input class="form-control" type="number" id="latitude" max="90" min="-90" step="0.000001"><!--TODO MUST BE FLOAT-->
+        </div>
+        <div class="form-group col-xs-6 hidden" id="longitude-group">
+          <label class="control-label">Longitude</label>
+          <input class="form-control" type="number" id="longitude" max="180" min="-180" step="0.000001"><!--TODO MUST BE FLOAT-->
+        </div>
       </div>
-      <div class="form-group col-xs-12" id="privacy-group">
-        <label>Privacy Level</label>
-        <select class="form-control" id="privacy">
-          <option>Public</option>
-          <option>Private</option>
-          <option>Confidential</option>
-        </select>
+      
+      <div class="row">
+        <div class="form-group col-xs-12 hidden">
+          <small class="form-text text-danger">Lat Lon Error</small>
+        </div>
       </div>
-      <div class="form-group col-xs-12 hidden" id="priority-group">
-        <label>Priority</label><!--TODO needs to map to values 0-9 as per file documentation-->
-        <select class="form-control" id="priority">
-          <option>High</option>
-          <option selected="selected">Medium</option>
-          <option>Low</option>
-        </select>
+      
+      <div class="row">
+        <div class="form-group col-xs-12" id="privacy-group">
+          <label class="control-label">Privacy Level</label>
+          <select class="form-control" id="privacy">
+            <option>Public</option>
+            <option>Private</option>
+            <option>Confidential</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group col-xs-12">
-        <button type="button" class="btn btn-primary" onclick="createIcsFile()" id="submit-button">Generate Event File</button>
+
+      <div class="row">
+        <div class="form-group col-xs-12 hidden" id="priority-group">
+          <label class="control-label">Priority</label><!--TODO needs to map to values 0-9 as per file documentation-->
+          <select class="form-control" id="priority">
+            <option>High</option>
+            <option selected="selected">Medium</option>
+            <option>Low</option>
+          </select>
+        </div>
       </div>
+      
+      <div class="row">
+        <div class="form-group col-xs-12">
+          <button type="button" class="btn btn-primary" onclick="createIcsFile()" id="submit-button">Generate Event File</button>
+        </div>
+      </div>
+      
       <div class=col-xs-12>
         <p class="required-field">* required</p><!-- TODO rework appearance -->
       </div>
+      
+      <br>
+      <br>
+      
     </div>
   </div>
   
@@ -96,13 +159,19 @@
     document.getElementById("start-date-group").classList.remove("col-xs-6");
     document.getElementById("start-date-group").classList.add("col-xs-12");
     document.getElementById("start-date-label").innerHTML = "Date of Event";
+    document.getElementById("start-date-warning").innerHTML = "Your event must have a date";
     document.getElementById("end-date-group").classList.add("hidden");
     document.getElementById("time-zone-group").classList.add("hidden");
+    document.getElementById("latitude-longitude-checkbox-group").classList.add("hidden");
     document.getElementById("latitude-group").classList.add("hidden");
     document.getElementById("longitude-group").classList.add("hidden");
     document.getElementById("privacy-group").classList.add("hidden");
     document.getElementById("priority-group").classList.add("hidden");
     document.getElementById("submit-button").setAttribute("onclick", "createIcsFile(0)");
+    document.getElementById("start-date").setAttribute("onclick", "validateStartDate(0)");
+    document.getElementById("start-time").setAttribute("onclick", "validateStartTime(0)");
+    document.getElementById("end-time").setAttribute("onclick", "validateEndTime(0)");
+    validateStartDate(0);
   }
 
   /**
@@ -112,23 +181,192 @@
     document.getElementById("start-date-group").classList.remove("col-xs-12");
     document.getElementById("start-date-group").classList.add("col-xs-6");
     document.getElementById("start-date-label").innerHTML = "Start Date";
+    document.getElementById("start-date-warning").innerHTML = "Your event must have a start date";
     document.getElementById("end-date-group").classList.remove("hidden");
     document.getElementById("time-zone-group").classList.remove("hidden");
-    document.getElementById("latitude-group").classList.remove("hidden");
-    document.getElementById("longitude-group").classList.remove("hidden");
+    document.getElementById("latitude-longitude-checkbox-group").classList.remove("hidden");
+    if(document.getElementById("latitude-longitude-checkbox").checked) {
+      showLatitudeLongitude();
+    }
     document.getElementById("privacy-group").classList.remove("hidden");
     document.getElementById("priority-group").classList.remove("hidden");
     document.getElementById("submit-button").onclick = "createIcsFile(1)";
     document.getElementById("submit-button").setAttribute("onclick", "createIcsFile(1)");
+    document.getElementById("start-date").setAttribute("onclick", "validateStartDate(1)");
+    document.getElementById("start-time").setAttribute("onclick", "validateStartTime(1)");
+    document.getElementById("end-time").setAttribute("onclick", "validateEndTime(1)");
+    validateStartDate(1);
   }
 
-
+  function showLatitudeLongitude() {
+    if(document.getElementById("latitude-longitude-checkbox").checked) {
+      document.getElementById("latitude-group").classList.remove("hidden");
+      document.getElementById("longitude-group").classList.remove("hidden");
+    }
+    else {
+      hideLatitudeLongitude()
+    }
+  }  
+  function hideLatitudeLongitude() {
+    if(!document.getElementById("latitude-longitude-checkbox").checked) {
+      document.getElementById("latitude-group").classList.add("hidden");
+      document.getElementById("longitude-group").classList.add("hidden");
+    }
+  }
+  
+  function validateEventName() {
+    if (document.getElementById("event-name").value.trim().length == 0) {
+      document.getElementById("event-name-group").classList.add("has-error");
+      document.getElementById("event-name-warning").classList.remove("hidden");
+      document.getElementById("event-name").value = document.getElementById("event-name").value.trim()
+      return false;
+    }
+    else {
+      document.getElementById("event-name-group").classList.remove("has-error");
+      document.getElementById("event-name-warning").classList.add("hidden");
+      return true;
+    }
+  }
+  
+  function validateStartDate(mode) {
+    if(document.getElementById("start-date").value == "") {
+      document.getElementById("start-date-group").classList.add("has-error");
+      document.getElementById("start-date-warning").classList.remove("hidden");
+      return false;
+    }
+    else {
+      document.getElementById("start-date-warning").classList.add("hidden");
+      document.getElementById("start-date-group").classList.remove("has-error");
+      return validateStartEndDate(mode);
+    }
+  }
+  function validateEndDate(mode) {
+    if(document.getElementById("end-date").value == "") {
+      document.getElementById("end-date-group").classList.add("has-error");
+      document.getElementById("end-date-warning").classList.remove("hidden");
+      return false;
+    }
+    else {
+      document.getElementById("end-date-warning").classList.add("hidden");
+      document.getElementById("end-date-group").classList.remove("has-error");
+      return validateStartEndDate(mode);
+    }
+  }
+  function validateStartEndDate(mode) {
+    if(mode == 1) {
+      if(document.getElementById("start-date").value > document.getElementById("end-date").value) {
+        document.getElementById("start-date-group").classList.add("has-error");
+        document.getElementById("end-date-group").classList.add("has-error");
+        document.getElementById("start-end-date-warning-group").classList.remove("hidden");
+        return false;
+      }
+      else {
+        document.getElementById("start-date-group").classList.remove("has-error");
+        document.getElementById("end-date-group").classList.remove("has-error");
+        document.getElementById("start-end-date-warning-group").classList.add("hidden");
+        return true;
+      }
+    }
+    else {
+      document.getElementById("start-end-date-warning-group").classList.add("hidden");
+      return true;
+    }
+  }
+  
+  function validateStartTime(mode) {
+    if(document.getElementById("start-time").value == "") {
+      document.getElementById("start-time-group").classList.add("has-error");
+      document.getElementById("start-time-warning").classList.remove("hidden");
+      return false;
+    }
+    else {
+      document.getElementById("start-time-warning").classList.add("hidden");
+      document.getElementById("start-time-group").classList.remove("has-error");
+      return validateStartEndTime(mode);
+    }
+  }
+  function validateEndTime(mode) {
+    if(document.getElementById("end-time").value == "") {
+      document.getElementById("end-time-group").classList.add("has-error");
+      document.getElementById("end-time-warning").classList.remove("hidden");
+      return false;
+    }
+    else {
+      document.getElementById("end-time-group").classList.remove("has-error");
+      document.getElementById("end-time-warning").classList.add("hidden");
+      return validateStartEndTime(mode);
+    }
+  }
+  function validateStartEndTime(mode) {
+    if(mode == 1) {
+      let chk = true
+      if (!validateStartDate(mode)) {
+        chk = false;
+      }
+      if (!validateEndDate(mode)) {
+        chk = false;
+      }
+      if (!chk) {
+        console.log("dates failed");
+        return false;
+      }
+      else {
+        if(document.getElementById("start-date").value == document.getElementById("end-date")) {
+          if (document.getElementById("start-time").value > document.getElementById("end-time").value) {
+            document.getElementById("start-time-group").classList.add("has-error");
+            document.getElementById("end-time-group").classList.add("has-error");
+            document.getElementById("start-end-time-warning-group").classList.remove("hidden");
+            return false;
+          }
+          else {
+            document.getElementById("start-time-group").classList.remove("has-error");
+            document.getElementById("end-time-group").classList.remove("has-error");
+            document.getElementById("start-end-time-warning-group").classList.add("hidden");
+            return true;
+          }
+        }
+        else {
+          document.getElementById("start-time-group").classList.remove("has-error");
+          document.getElementById("end-time-group").classList.remove("has-error");
+          document.getElementById("start-end-time-warning-group").classList.add("hidden");
+          return true;
+        }
+      }
+    }
+    else {
+      if (document.getElementById("start-time").value > document.getElementById("end-time").value) {
+        document.getElementById("start-time-group").classList.add("has-error");
+        document.getElementById("end-time-group").classList.add("has-error");
+        document.getElementById("start-end-time-warning-group").classList.remove("hidden");
+        return false;
+      }
+      else {
+        document.getElementById("start-time-group").classList.remove("has-error");
+        document.getElementById("end-time-group").classList.remove("has-error");
+        document.getElementById("start-end-time-warning-group").classList.add("hidden");
+        return true;
+      }
+    }
+  }
+  
+  function validateAllFields(mode) {
+    let rtn = true;
+    if (!validateEventName())
+      rtn = false;
+    return rtn;
+  }
+  
+  
   /** 
    * createIcsFile, Creates a .ics file based on the user's input
    * @param mode, 0: simple, 1: advanced
    */
   createIcsFile = function(mode) {
     //needs EVENT_NAME, START_TIME, END_TIME, START_DATE, END_DATE, TIME_ZONE, LOCATION
+    if(!validateAllFields(mode)) {
+      console.log("validation failed");
+      return;
+    }
     let content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\nX-WR-TIMEZONE:" + createTzid() + "\r\n";
 
     //TODO add tzid to content
@@ -171,7 +409,6 @@
     rtn = rtn.concat("DTSTAMP:" + dt.getFullYear() + padZeros(dt.getMonth() + 1, 2) + padZeros(dt.getDate(), 2) + "T" +
       dt.getHours() + dt.getMinutes() + "00" + "\r\n");
     //DTSTART
-      //TODO validate start time is before end time
     rtn = rtn.concat("DTSTART:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("start-time").value) + "\r\n");
     //DTEND
     if(mode == 1) {
@@ -214,11 +451,11 @@
   }
 
   window.onload = function() {
-    showSimple();
     const dt = new Date();
     const date = dt.getFullYear() + "-" + padZeros(dt.getMonth() + 1, 2) + "-" + padZeros(dt.getDate(), 2);
     document.getElementById("start-date").value = date;
     document.getElementById("end-date").value = date;
+    showSimple();
   }
 
   function padZeros(num, width) {
