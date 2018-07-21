@@ -53,11 +53,11 @@
       </div>
       <div class="form-group col-xs-6 hidden" id="latitude-group">
         <label>Latitude</label>
-        <input class="form-control" type="number" id="latitude"><!--TODO MUST BE FLOAT-->
+        <input class="form-control" type="number" id="latitude" max="90" min="-90" step="0.000001"><!--TODO MUST BE FLOAT-->
       </div>
       <div class="form-group col-xs-6 hidden" id="longitude-group">
         <label>Longitude</label>
-        <input class="form-control" type="number" id="longitude"><!--TODO MUST BE FLOAT-->
+        <input class="form-control" type="number" id="longitude" max="180" min="-180" step="0.000001"><!--TODO MUST BE FLOAT-->
       </div>
       <div class="form-group col-xs-12" id="privacy-group">
         <label>Privacy Level</label>
@@ -132,7 +132,7 @@
     let content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\nX-WR-TIMEZONE:" + createTzid() + "\r\n";
 
     //TODO add tzid to content
-    content = content.concat(createVevent());
+    content = content.concat(createVevent(mode));
     content = content.concat("END:VCALENDAR");
     let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
     saveAs(blob, "output.ics");//TODO dynamic filename
@@ -141,27 +141,53 @@
   /**
    * createVevent, generates a .ics VEVENT
    */
-  function createVevent() {
-    let vuid, vclass, dtstamp, dtstart, dtend, location, summary;
+  function createVevent(mode) {
+    //BEGIN
     let rtn = "BEGIN:VEVENT\r\n";
-    //TODO add uid
+    //UID
+    rtn = rtn.concat("UID:" + createUid() + "\r\n");
+    //CLASS
+    if (mode == 1) {
+      rtn = rtn.concat("CLASS:" + document.getElementById("privacy").value.toUpperCase() + "\r\n");
+    }
+    //PRIORITY
+    if (mode == 1) {
+      let priInt = 0;
+      switch (document.getElementById("priority").value) {
+        case "High":
+          priInt = 1;
+          break;
+        case "Medium":
+          priInt = 5;
+          break;
+        case "Low":
+          priInt = 9;
+          break;
+      }
+      rtn = rtn.concat("PRIORITY:" + priInt + "\r\n");
+    }
+    //DTSTAMP
     let dt = new Date();
     rtn = rtn.concat("DTSTAMP:" + dt.getFullYear() + padZeros(dt.getMonth() + 1, 2) + padZeros(dt.getDate(), 2) + "T" +
       dt.getHours() + dt.getMinutes() + "00" + "\r\n");
-
+    //DTSTART
       //TODO validate start time is before end time
     rtn = rtn.concat("DTSTART:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("start-time").value) + "\r\n");
-    //TODO end date input
-    rtn = rtn.concat("DTEND:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("end-time").value) + "\r\n");
-
-	rtn = rtn.concat("UID:" + createUid() + "\r\n");
-	
+    //DTEND
+    if(mode == 1) {
+      rtn = rtn.concat("DTEND:" + createDateTimeString(document.getElementById("end-date").value, document.getElementById("end-time").value) + "\r\n");
+    }
+    else {
+      rtn = rtn.concat("DTEND:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("end-time").value) + "\r\n");
+    }    
+    //LOCATION
     rtn = rtn.concat("LOCATION:" + document.getElementById("location").value + "\r\n");
+    //GEO
+    //SUMMARY
     rtn = rtn.concat("SUMMARY:" + document.getElementById("event-name").value + "\r\n");
-
-
+    //END
     rtn = rtn.concat("END:VEVENT\r\n");
-      return rtn;
+    return rtn;
   }
 
 
