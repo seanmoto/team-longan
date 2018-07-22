@@ -39,12 +39,12 @@
         <div class="form-group col-xs-12" id="start-date-group">
           <label class="control-label" id="start-date-label">Date of Event</label><p class="required-field"> *</p>
           <input class="form-control" type="date" id="start-date" onfocusout="validateStartDate(0)">
-          <small class="form-text text-danger hidden" id="start-date-warning">Your event must have a date</small>
+          <small class="form-text text-danger hidden" id="start-date-warning">Your event must have a valid date</small>
         </div>
         <div class="form-group col-xs-6" id="end-date-group">
           <label class="control-label">End Date</label><p class="required-field"> *</p>
           <input class="form-control" type="date" id="end-date" onfocusout="validateEndDate(1)">
-          <small class="form-text text-danger hidden" id="end-date-warning">Your event must have an end date</small>
+          <small class="form-text text-danger hidden" id="end-date-warning">Your event must have a valid end date</small>
         </div>
       </div>
       <div class="row">
@@ -67,7 +67,12 @@
       </div>
       <div class="row">
         <div class="form-group col-xs-12 hidden" id="start-end-time-warning-group">
-          <small class="form-text text-center text-danger" id="start-end-time-warning">Start Time cannot be after End Time for single day events. Please double check your start and end times to avoid errors</small>
+          <small class="form-text text-center text-danger">Start Time cannot be after End Time for single day events. Please double check your start and end times to avoid errors</small>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-xs-12 hidden" id="start-end-time-date-warning-group">
+          <small class="form-text text-center text-danger">Please fix issues with your event's start and end dates before proceding</small>
         </div>
       </div>
       
@@ -159,7 +164,7 @@
     document.getElementById("start-date-group").classList.remove("col-xs-6");
     document.getElementById("start-date-group").classList.add("col-xs-12");
     document.getElementById("start-date-label").innerHTML = "Date of Event";
-    document.getElementById("start-date-warning").innerHTML = "Your event must have a date";
+    document.getElementById("start-date-warning").innerHTML = "Your event must have a valid date";
     document.getElementById("end-date-group").classList.add("hidden");
     document.getElementById("time-zone-group").classList.add("hidden");
     document.getElementById("latitude-longitude-checkbox-group").classList.add("hidden");
@@ -168,9 +173,9 @@
     document.getElementById("privacy-group").classList.add("hidden");
     document.getElementById("priority-group").classList.add("hidden");
     document.getElementById("submit-button").setAttribute("onclick", "createIcsFile(0)");
-    document.getElementById("start-date").setAttribute("onclick", "validateStartDate(0)");
-    document.getElementById("start-time").setAttribute("onclick", "validateStartTime(0)");
-    document.getElementById("end-time").setAttribute("onclick", "validateEndTime(0)");
+    document.getElementById("start-date").setAttribute("onfocusout", "validateStartDate(0)");
+    document.getElementById("start-time").setAttribute("onfocusout", "validateStartTime(0)");
+    document.getElementById("end-time").setAttribute("onfocusout", "validateEndTime(0)");
     validateStartDate(0);
   }
 
@@ -181,7 +186,7 @@
     document.getElementById("start-date-group").classList.remove("col-xs-12");
     document.getElementById("start-date-group").classList.add("col-xs-6");
     document.getElementById("start-date-label").innerHTML = "Start Date";
-    document.getElementById("start-date-warning").innerHTML = "Your event must have a start date";
+    document.getElementById("start-date-warning").innerHTML = "Your event must have a valid start date";
     document.getElementById("end-date-group").classList.remove("hidden");
     document.getElementById("time-zone-group").classList.remove("hidden");
     document.getElementById("latitude-longitude-checkbox-group").classList.remove("hidden");
@@ -192,9 +197,9 @@
     document.getElementById("priority-group").classList.remove("hidden");
     document.getElementById("submit-button").onclick = "createIcsFile(1)";
     document.getElementById("submit-button").setAttribute("onclick", "createIcsFile(1)");
-    document.getElementById("start-date").setAttribute("onclick", "validateStartDate(1)");
-    document.getElementById("start-time").setAttribute("onclick", "validateStartTime(1)");
-    document.getElementById("end-time").setAttribute("onclick", "validateEndTime(1)");
+    document.getElementById("start-date").setAttribute("onfocusout", "validateStartDate(1)");
+    document.getElementById("start-time").setAttribute("onfocusout", "validateStartTime(1)");
+    document.getElementById("end-time").setAttribute("onfocusout", "validateEndTime(1)");
     validateStartDate(1);
   }
 
@@ -254,16 +259,20 @@
   }
   function validateStartEndDate(mode) {
     if(mode == 1) {
-      if(document.getElementById("start-date").value > document.getElementById("end-date").value) {
+      if(document.getElementById("start-date").value > document.getElementById("end-date").value && document.getElementById("start-date").value != "" && document.getElementById("end-date").value != "") {
         document.getElementById("start-date-group").classList.add("has-error");
         document.getElementById("end-date-group").classList.add("has-error");
         document.getElementById("start-end-date-warning-group").classList.remove("hidden");
+        document.getElementById("start-end-time-date-warning-group").classList.remove("hidden");
+        validateStartEndTime(mode);
         return false;
       }
       else {
         document.getElementById("start-date-group").classList.remove("has-error");
         document.getElementById("end-date-group").classList.remove("has-error");
         document.getElementById("start-end-date-warning-group").classList.add("hidden");
+        document.getElementById("start-end-time-date-warning-group").classList.add("hidden");
+        validateStartEndTime(mode);
         return true;
       }
     }
@@ -299,31 +308,12 @@
   }
   function validateStartEndTime(mode) {
     if(mode == 1) {
-      let chk = true
-      if (!validateStartDate(mode)) {
-        chk = false;
-      }
-      if (!validateEndDate(mode)) {
-        chk = false;
-      }
-      if (!chk) {
-        console.log("dates failed");
-        return false;
-      }
-      else {
-        if(document.getElementById("start-date").value == document.getElementById("end-date")) {
-          if (document.getElementById("start-time").value > document.getElementById("end-time").value) {
-            document.getElementById("start-time-group").classList.add("has-error");
-            document.getElementById("end-time-group").classList.add("has-error");
-            document.getElementById("start-end-time-warning-group").classList.remove("hidden");
-            return false;
-          }
-          else {
-            document.getElementById("start-time-group").classList.remove("has-error");
-            document.getElementById("end-time-group").classList.remove("has-error");
-            document.getElementById("start-end-time-warning-group").classList.add("hidden");
-            return true;
-          }
+      if(document.getElementById("start-date").value == document.getElementById("end-date").value) {
+        if (document.getElementById("start-time").value > document.getElementById("end-time").value  && document.getElementById("end-time").value != "") {
+          document.getElementById("start-time-group").classList.add("has-error");
+          document.getElementById("end-time-group").classList.add("has-error");
+          document.getElementById("start-end-time-warning-group").classList.remove("hidden");
+          return false;
         }
         else {
           document.getElementById("start-time-group").classList.remove("has-error");
@@ -332,9 +322,15 @@
           return true;
         }
       }
+      else {
+        document.getElementById("start-time-group").classList.remove("has-error");
+        document.getElementById("end-time-group").classList.remove("has-error");
+        document.getElementById("start-end-time-warning-group").classList.add("hidden");
+        return true;
+      }
     }
     else {
-      if (document.getElementById("start-time").value > document.getElementById("end-time").value) {
+      if (document.getElementById("start-time").value > document.getElementById("end-time").value && document.getElementById("end-time").value != "") {
         document.getElementById("start-time-group").classList.add("has-error");
         document.getElementById("end-time-group").classList.add("has-error");
         document.getElementById("start-end-time-warning-group").classList.remove("hidden");
@@ -352,6 +348,16 @@
   function validateAllFields(mode) {
     let rtn = true;
     if (!validateEventName())
+      rtn = false;
+    if (!validateStartDate(mode))
+      rtn = false;
+    if(mode == 1) {
+      if (!validateEndDate(mode))
+        rtn = false;
+    }
+    if (!validateStartTime(mode))
+      rtn = false;
+    if (!validateEndTime(mode))
       rtn = false;
     return rtn;
   }
