@@ -15,6 +15,8 @@
   </style>
 </head>
 
+<!-- TODO capture clicking of clear button on time/date inputs for validation? -->
+
 <body>
   <br>
   <div class="container">
@@ -116,7 +118,7 @@
         <div class="form-group col-xs-12" id="privacy-group">
           <label class="control-label">Privacy Level</label>
           <select class="form-control" id="privacy">
-            <option>Public</option>
+            <option selected="selected">Public</option>
             <option>Private</option>
             <option>Confidential</option>
           </select>
@@ -135,7 +137,44 @@
       </div>
       
       <div class="row">
-        <div class="form-group col-xs-12">
+        <div class="form-group col-xs-12" id="frequency-group">
+          <label class="control-label">Frequency</label><small>(In Development)</small>
+          <select class="form-control" id="frequency" onchange="showAdvancedFrequency()">
+            <option selected="selected">Once</option>
+            <!--<option>Daily</option>-->
+            <option>Weekly</option>
+            <option>Monthly</option>
+            <option>Yearly</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="well hidden" id="advanced-frequency-group">
+        <div class="row">
+          <div class="form-group col-xs-12">
+            <label class="control-label">Repeat Until</label><p class="required-field"> *</p><small>(In Development)</small>
+            <input class="form-control" type="date" id="until">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-xs-12">
+            <label class="control-label">Exclude</label><small>(In Development)</small>
+            <input class="form-control" type="date" id="exclude">
+          </div>
+          <div class="form-group col-xs-12">
+            <button type="button" class="btn btn-info" onclick="addExclusion()">Add Exclusion</button>
+            &nbsp;
+            <button type="button" class="btn btn-danger" onclick="removeExclusion()">Remove Exclusion</button>
+          </div>
+          <div class="form-group col-xs-12 hidden" id="excluded-dates-group">
+            <label>Excluded Dates: </label>
+            <input class="form-control" type="text" id="excluded-dates" readonly>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="form-group col-xs-12" id="from-until group">
           <button type="button" class="btn btn-primary" onclick="createIcsFile()" id="submit-button">Generate Event File</button>
         </div>
       </div>
@@ -213,6 +252,28 @@
     if(!document.getElementById("latitude-longitude-checkbox").checked) {
       document.getElementById("latitude-group").classList.add("hidden");
       document.getElementById("longitude-group").classList.add("hidden");
+    }
+  }
+  
+  function showAdvancedFrequency() {
+    if(document.getElementById("frequency").value != "Once") {
+      document.getElementById("advanced-frequency-group").classList.remove("hidden");
+      shoExcludedDates();
+    }
+    else {
+      hideAdvancedFrequency();
+    }
+  }
+  function hideAdvancedFrequency() {
+    document.getElementById("advanced-frequency-group").classList.add("hidden");
+  }
+  
+  function shoExcludedDates() {
+    if(document.getElementById("excluded-dates").value != "") {
+      document.getElementById("excluded-dates-group").classList.remove("hidden");
+    }
+    else {
+      document.getElementById("excluded-dates-group").classList.add("hidden");
     }
   }
   
@@ -360,6 +421,31 @@
     return rtn;
   }
   
+  function addExclusion() {
+    if(document.getElementById("exclude").value != "") {
+      if(document.getElementById("excluded-dates").value.search(document.getElementById("exclude").value) == -1) {
+        document.getElementById("excluded-dates-group").classList.remove("hidden");
+        if(document.getElementById("excluded-dates").value == "") {
+          document.getElementById("excluded-dates").value = document.getElementById("excluded-dates").value.concat(document.getElementById("exclude").value);
+        }
+        else {
+          document.getElementById("excluded-dates").value = document.getElementById("excluded-dates").value.concat(", " + document.getElementById("exclude").value);
+        }
+      }
+    }
+  }
+  function removeExclusion() {
+    if(document.getElementById("exclude").value != "") {
+      if(document.getElementById("excluded-dates").value.search(document.getElementById("exclude").value) != -1) {
+        document.getElementById("excluded-dates").value = document.getElementById("excluded-dates").value.replace(", " + document.getElementById("exclude").value, "");
+        document.getElementById("excluded-dates").value = document.getElementById("excluded-dates").value.replace(document.getElementById("exclude").value + ", ", "");
+        document.getElementById("excluded-dates").value = document.getElementById("excluded-dates").value.replace(document.getElementById("exclude").value, "");
+        if(document.getElementById("excluded-dates").value == "") {
+          document.getElementById("excluded-dates-group").classList.add("hidden");
+        }
+      }
+    }
+  }
   
   /** 
    * createIcsFile, Creates a .ics file based on the user's input
@@ -373,7 +459,9 @@
     }
     let content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nCALSCALE:GREGORIAN\r\nX-WR-TIMEZONE:" + createTzid() + "\r\n";
 
-    //TODO add tzid to content
+    //TZID
+    content = content.concat("TZID:" + createTzid() + "\r\n");
+    //VEVENT
     content = content.concat(createVevent(mode));
     content = content.concat("END:VCALENDAR");
     let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
@@ -460,6 +548,7 @@
     document.getElementById("start-date").value = date;
     document.getElementById("end-date").value = date;
     showSimple();
+    showAdvancedFrequency();
   }
 
   function padZeros(num, width) {
