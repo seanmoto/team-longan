@@ -141,7 +141,7 @@
           <label class="control-label">Frequency</label><small>(In Development)</small>
           <select class="form-control" id="frequency" onchange="showAdvancedFrequency()">
             <option selected="selected">Once</option>
-            <!--<option>Daily</option>-->
+            <option>Daily</option>
             <option>Weekly</option>
             <option>Monthly</option>
             <option>Yearly</option>
@@ -509,7 +509,26 @@
     else {
       rtn = rtn.concat("DTEND:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("end-time").value) + "\r\n");
     }    
-    //LOCATION
+	//FREQUENCY (RRULE)
+	if (document.getElementById("frequency").value != "Once") {
+		let freqRule = "";
+		switch (document.getElementById("frequency").value) {
+			case "Daily":
+				freqRule = "DAILY;";
+				break;
+			case "Weekly":
+				freqRule = "WEEKLY;";
+				break;
+			case "Monthly":
+				freqRule = "MONTHLY;";
+				break;
+			case "Yearly":
+				freqRule = "YEARLY;";
+				break;
+		}
+		rtn = rtn.concat("RRULE:FREQ=" + freqRule + "UNTIL=" + createDateTimeString(document.getElementById("until").value, document.getElementById("end-time").value) + "Z\r\n");
+    }
+	//LOCATION
     rtn = rtn.concat("LOCATION:" + document.getElementById("location").value + "\r\n");
     //GEO
     //SUMMARY
