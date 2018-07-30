@@ -97,20 +97,21 @@
         </div>
       </div>
       
-      <div class="row">
-        <div class="form-group col-xs-6 hidden" id="latitude-group">
-          <label class="control-label">Latitude</label><small>(In development)</small>
-          <input class="form-control" type="number" id="latitude" max="90" min="-90" step="0.000001"><!--TODO MUST BE FLOAT-->
+      <div class="well hidden" id="latitude-longitude-group">
+        <div class="row">
+          <div class="form-group col-xs-6" id="latitude-group">
+            <label class="control-label">Latitude</label><p class="required-field"> *</p>
+            <input class="form-control" type="number" id="latitude" value="0" max="90" min="-90" step="0.000001" onfocusout="validateLatitude()">
+          </div>
+          <div class="form-group col-xs-6" id="longitude-group">
+            <label class="control-label">Longitude</label><p class="required-field"> *</p>
+            <input class="form-control" type="number" id="longitude" value="0" max="180" min="-180" step="0.000001" onfocusout="validateLongitude()">
+          </div>
         </div>
-        <div class="form-group col-xs-6 hidden" id="longitude-group">
-          <label class="control-label">Longitude</label><small>(In development)</small>
-          <input class="form-control" type="number" id="longitude" max="180" min="-180" step="0.000001"><!--TODO MUST BE FLOAT-->
-        </div>
-      </div>
-      
-      <div class="row">
-        <div class="form-group col-xs-12 hidden">
-          <small class="form-text text-danger">Lat Lon Error</small>
+        <div class="row">
+          <div class="form-group col-xs-12 hidden" id="latitude-longitude-warning-group">
+            <small class="form-text text-danger">You must specify both latitude and longitude</small>
+          </div>
         </div>
       </div>
       
@@ -204,8 +205,7 @@
     document.getElementById("end-date-group").classList.add("hidden");
     document.getElementById("time-zone-group").classList.add("hidden");
     document.getElementById("latitude-longitude-checkbox-group").classList.add("hidden");
-    document.getElementById("latitude-group").classList.add("hidden");
-    document.getElementById("longitude-group").classList.add("hidden");
+    document.getElementById("latitude-longitude-group").classList.add("hidden");
     document.getElementById("privacy-group").classList.add("hidden");
     document.getElementById("priority-group").classList.add("hidden");
     document.getElementById("submit-button").setAttribute("onclick", "createIcsFile(0)");
@@ -241,24 +241,17 @@
 
   function showLatitudeLongitude() {
     if(document.getElementById("latitude-longitude-checkbox").checked) {
-      document.getElementById("latitude-group").classList.remove("hidden");
-      document.getElementById("longitude-group").classList.remove("hidden");
+      document.getElementById("latitude-longitude-group").classList.remove("hidden");
     }
     else {
-      hideLatitudeLongitude()
-    }
-  }  
-  function hideLatitudeLongitude() {
-    if(!document.getElementById("latitude-longitude-checkbox").checked) {
-      document.getElementById("latitude-group").classList.add("hidden");
-      document.getElementById("longitude-group").classList.add("hidden");
+      document.getElementById("latitude-longitude-group").classList.add("hidden");
     }
   }
   
   function showAdvancedFrequency() {
     if(document.getElementById("frequency").value != "Once") {
       document.getElementById("advanced-frequency-group").classList.remove("hidden");
-      shoExcludedDates();
+      showExcludedDates();
     }
     else {
       hideAdvancedFrequency();
@@ -268,7 +261,7 @@
     document.getElementById("advanced-frequency-group").classList.add("hidden");
   }
   
-  function shoExcludedDates() {
+  function showExcludedDates() {
     if(document.getElementById("excluded-dates").value != "") {
       document.getElementById("excluded-dates-group").classList.remove("hidden");
     }
@@ -404,6 +397,49 @@
     }
   }
   
+  function validateLatitude() {
+    if(document.getElementById("latitude").value != "") {
+      if(document.getElementById("latitude").value > 90) {
+        document.getElementById("latitude").value = 90;
+      }
+      if(document.getElementById("latitude").value < -90) {
+        document.getElementById("latitude").value = -90;
+      }
+      document.getElementById("latitude").value = parseFloat(document.getElementById("latitude").value).toFixed(6);
+      document.getElementById("latitude-group").classList.remove("has-error");
+      if(document.getElementById("longitude").value != "") {
+        document.getElementById("latitude-longitude-warning-group").classList.add("hidden");
+      }
+      return true;
+    }
+    else {
+      document.getElementById("latitude-group").classList.add("has-error");
+      document.getElementById("latitude-longitude-warning-group").classList.remove("hidden");
+      return false;
+    }
+  }
+  function validateLongitude() {
+    if(document.getElementById("longitude").value != "") {
+      if(document.getElementById("longitude").value > 180) {
+        document.getElementById("longitude").value = 180;
+      }
+      if(document.getElementById("longitude").value < -180) {
+        document.getElementById("longitude").value = -180;
+      }
+      document.getElementById("longitude").value = parseFloat(document.getElementById("longitude").value).toFixed(6);
+      document.getElementById("longitude-group").classList.remove("has-error");
+      if(document.getElementById("latitude").value != "") {
+        document.getElementById("latitude-longitude-warning-group").classList.add("hidden");
+      }
+      return true;
+    }
+    else {
+      document.getElementById("longitude-group").classList.add("has-error");
+      document.getElementById("latitude-longitude-warning-group").classList.remove("hidden");
+      return false;
+    }
+  }
+  
   function validateAllFields(mode) {
     let rtn = true;
     if (!validateEventName())
@@ -418,6 +454,14 @@
       rtn = false;
     if (!validateEndTime(mode))
       rtn = false;
+    if(document.getElementById("latitude-longitude-checkbox").checked == true) {
+      if(!validateLatitude()) {
+        rtn = false;
+      }
+      if(!validateLongitude()) {
+        rtn = false;
+      }
+    }
     return rtn;
   }
   
@@ -452,7 +496,6 @@
    * @param mode, 0: simple, 1: advanced
    */
   createIcsFile = function(mode) {
-    //needs EVENT_NAME, START_TIME, END_TIME, START_DATE, END_DATE, TIME_ZONE, LOCATION
     if(!validateAllFields(mode)) {
       console.log("validation failed");
       return;
@@ -512,6 +555,11 @@
     //LOCATION
     rtn = rtn.concat("LOCATION:" + document.getElementById("location").value + "\r\n");
     //GEO
+    if(mode == 1) {
+      if(document.getElementById("latitude-longitude-checkbox").checked == true) {
+        rtn = rtn.concat("GEO:" + parseFloat(document.getElementById("latitude").value).toFixed(6) + ";" + parseFloat(document.getElementById("longitude").value).toFixed(6) + "\r\n");
+      }
+    }
     //SUMMARY
     rtn = rtn.concat("SUMMARY:" + document.getElementById("event-name").value + "\r\n");
     //END
