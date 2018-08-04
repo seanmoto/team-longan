@@ -685,9 +685,19 @@
       
       <div class="well hidden" id="advanced-frequency-group">
         <div class="row">
-          <div class="form-group col-xs-12">
-            <label class="control-label">Repeat Until</label><p class="required-field"> *</p><small>(In Development)</small>
-            <input class="form-control" type="date" id="until">
+          <div class="form-group col-xs-12" id="until-group">
+            <label class="control-label">Repeat Until</label><p class="required-field"> *</p>
+            <input class="form-control" type="date" id="until" onfocusout="validateFrequency()">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-xs-12 hidden" id="until-warning-group">
+            <small class="form-text text-danger">You must specify when to stop repeating your event</small>
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group col-xs-12 hidden" id="until-start-warning-group">
+            <small class="form-text text-danger">Your event's until date cannot be before its start date</small>
           </div>
         </div>
         <div class="row">
@@ -824,6 +834,9 @@
     else {
       document.getElementById("start-date-warning").classList.add("hidden");
       document.getElementById("start-date-group").classList.remove("has-error");
+      if(document.getElementById("until").value != "") {
+        validateFrequency();
+      }
       return validateStartEndDate(mode);
     }
   }
@@ -971,6 +984,27 @@
     }
   }
   
+  function validateFrequency() {
+    if(document.getElementById("until").value != "") {
+      if(document.getElementById("start-date").value > document.getElementById("until").value) {
+        document.getElementById("until-group").classList.add("has-error");
+        document.getElementById("until-start-warning-group").classList.remove("hidden");
+        return false;
+      }
+      else {
+        document.getElementById("until-group").classList.remove("has-error");
+        document.getElementById("until-warning-group").classList.add("hidden");
+        document.getElementById("until-start-warning-group").classList.add("hidden");
+        return true;
+      }
+    }
+    else {
+      document.getElementById("until-group").classList.add("has-error");
+      document.getElementById("until-warning-group").classList.remove("hidden");
+      return false;
+    }
+  }
+  
   function validateAllFields(mode) {
     let rtn = true;
     if (!validateEventName())
@@ -990,6 +1024,11 @@
         rtn = false;
       }
       if(!validateLongitude()) {
+        rtn = false;
+      }
+    }
+    if (document.getElementById("frequency").value != "Once") {
+      if(!validateFrequency()) {
         rtn = false;
       }
     }
@@ -1083,26 +1122,26 @@
     else {
       rtn = rtn.concat("DTEND:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("end-time").value) + "\r\n");
     }    
-	//FREQUENCY (RRULE)
-	if (document.getElementById("frequency").value != "Once") {
-		let freqRule = "";
-		switch (document.getElementById("frequency").value) {
-			case "Daily":
-				freqRule = "DAILY;";
-				break;
-			case "Weekly":
-				freqRule = "WEEKLY;";
-				break;
-			case "Monthly":
-				freqRule = "MONTHLY;";
-				break;
-			case "Yearly":
-				freqRule = "YEARLY;";
-				break;
-		}
-		rtn = rtn.concat("RRULE:FREQ=" + freqRule + "UNTIL=" + createDateTimeString(document.getElementById("until").value, document.getElementById("end-time").value) + "Z\r\n");
+	  //FREQUENCY (RRULE)
+	  if (document.getElementById("frequency").value != "Once") {
+		  let freqRule = "";
+		  switch (document.getElementById("frequency").value) {
+        case "Daily":
+          freqRule = "DAILY;";
+          break;
+        case "Weekly":
+          freqRule = "WEEKLY;";
+          break;
+        case "Monthly":
+          freqRule = "MONTHLY;";
+          break;
+        case "Yearly":
+          freqRule = "YEARLY;";
+          break;
+		  }
+		  rtn = rtn.concat("RRULE:FREQ=" + freqRule + "UNTIL=" + createDateTimeString(document.getElementById("until").value, document.getElementById("end-time").value) + "Z\r\n");
     }
-	//LOCATION
+	  //LOCATION
     rtn = rtn.concat("LOCATION:" + document.getElementById("location").value + "\r\n");
     //GEO
     if(mode == 1) {
