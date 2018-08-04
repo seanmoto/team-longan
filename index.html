@@ -672,7 +672,7 @@
       
       <div class="row">
         <div class="form-group col-xs-12" id="frequency-group">
-          <label class="control-label">Frequency</label><small>(In Development)</small>
+          <label class="control-label">Frequency</label>
           <select class="form-control" id="frequency" onchange="showAdvancedFrequency()">
             <option selected="selected">Once</option>
             <option>Daily</option>
@@ -702,7 +702,7 @@
         </div>
         <div class="row">
           <div class="form-group col-xs-12">
-            <label class="control-label">Exclude</label><small>(In Development)</small>
+            <label class="control-label">Exclude</label>
             <input class="form-control" type="date" id="exclude">
           </div>
           <div class="form-group col-xs-12">
@@ -1122,7 +1122,7 @@
     else {
       rtn = rtn.concat("DTEND:" + createDateTimeString(document.getElementById("start-date").value, document.getElementById("end-time").value) + "\r\n");
     }    
-	  //FREQUENCY (RRULE)
+	  //FREQUENCY (RRULE, EXDATE)
 	  if (document.getElementById("frequency").value != "Once") {
 		  let freqRule = "";
 		  switch (document.getElementById("frequency").value) {
@@ -1140,6 +1140,14 @@
           break;
 		  }
 		  rtn = rtn.concat("RRULE:FREQ=" + freqRule + "UNTIL=" + createDateTimeString(document.getElementById("until").value, document.getElementById("end-time").value) + "Z\r\n");
+      if (document.getElementById("excluded-dates").value != "") {
+        let dates = document.getElementById("excluded-dates").value.split(", ");
+        rtn = rtn.concat("EXDATE:");
+        for(let i = 0; i < dates.length-1; i++) {
+          rtn = rtn.concat(createDateTimeString(dates[i], "00:00") + "Z,");
+        }
+        rtn = rtn.concat(createDateTimeString(dates[dates.length -1], "00:00") + "Z\r\n");
+      }
     }
 	  //LOCATION
     rtn = rtn.concat("LOCATION:" + document.getElementById("location").value + "\r\n");
