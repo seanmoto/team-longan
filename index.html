@@ -1145,6 +1145,9 @@
         rtn = rtn.concat("EXDATE:");
         for(let i = 0; i < dates.length-1; i++) {
           rtn = rtn.concat(createDateTimeString(dates[i], "00:00") + "Z,");
+          if(i % 3 == 2) {
+            rtn = rtn.concat("\r\n ");
+          }
         }
         rtn = rtn.concat(createDateTimeString(dates[dates.length -1], "00:00") + "Z\r\n");
       }
